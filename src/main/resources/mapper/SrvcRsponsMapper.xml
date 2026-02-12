@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.itsm_api.mapper.SrvcRsponsMapper">
+
+    <insert id="create" parameterType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <selectKey keyProperty="srvcRsponsNo" resultType="String" order="BEFORE">
+            SELECT IFNULL(
+                (SELECT CONCAT(
+                    SUBSTRING(MAX(SRVC_RSPONS_NO), 1, 8),
+                    LPAD(CAST(SUBSTRING(MAX(SRVC_RSPONS_NO), 9) AS UNSIGNED) + 1, 3, '0'))
+                FROM TB_SRVC_RSPONS
+                WHERE SRVC_RSPONS_NO LIKE CONCAT('SR-', DATE_FORMAT(NOW(), '%y%m'), '-%')),
+                CONCAT('SR-', DATE_FORMAT(NOW(), '%y%m'), '-001')) AS srvcRsponsNo
+        </selectKey>
+        INSERT INTO TB_SRVC_RSPONS(
+            SRVC_RSPONS_NO, REQUST_DT, PROCESS_MT, RQESTER_1ST_NM, RQESTER_1ST_PSITN,
+            RQESTER_1ST_CTTPC, RQESTER_1ST_EMAIL, RQESTER_ID, RQESTER_NM, RQESTER_PSITN,
+            RQESTER_CTTPC, RQESTER_EMAIL, TRGET_SRVC_CODE, SRVC_RSPONS_BASIS_CODE,
+            SRVC_RSPONS_SJ, SRVC_RSPONS_CN, ETC, REQUST_ATCHMNFL_ID, CREAT_DT, CREAT_ID,
+            UPDT_DT, UPDT_ID, REF_IDS, DELETE_YN)
+        VALUES (#{srvcRsponsNo}, #{requstDt}, DATE_FORMAT(#{requstDt}, '%Y%m'),
+            #{rqester1stNm}, #{rqester1stPsitn}, #{rqester1stCttpc}, #{rqester1stEmail},
+            #{rqesterId}, #{rqesterNm}, #{rqesterPsitn}, #{rqesterCttpc}, #{rqesterEmail},
+            #{trgetSrvcCode}, #{srvcRsponsBasisCode}, #{srvcRsponsSj}, #{srvcRsponsCn},
+            #{etc}, #{requstAtchmnflId}, NOW(), #{creatId}, NOW(), #{creatId}, #{refIds}, 'N')
+    </insert>
+
+    <insert id="createSrReRequest" parameterType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <selectKey keyProperty="srvcRsponsNo" resultType="String" order="BEFORE">
+            SELECT IFNULL(
+                (SELECT CONCAT(
+                    SUBSTRING(MAX(SRVC_RSPONS_NO), 1, 8),
+                    LPAD(CAST(SUBSTRING(MAX(SRVC_RSPONS_NO), 9) AS UNSIGNED) + 1, 3, '0'))
+                FROM TB_SRVC_RSPONS
+                WHERE SRVC_RSPONS_NO LIKE CONCAT('SR-', DATE_FORMAT(NOW(), '%y%m'), '-%')),
+                CONCAT('SR-', DATE_FORMAT(NOW(), '%y%m'), '-001')) AS srvcRsponsNo
+        </selectKey>
+        INSERT INTO TB_SRVC_RSPONS(
+            SRVC_RSPONS_NO, REQUST_DT, PROCESS_MT, RQESTER_1ST_NM, RQESTER_1ST_PSITN,
+            RQESTER_1ST_CTTPC, RQESTER_1ST_EMAIL, RQESTER_ID, RQESTER_NM, RQESTER_PSITN,
+            RQESTER_CTTPC, RQESTER_EMAIL, TRGET_SRVC_CODE, SRVC_RSPONS_BASIS_CODE,
+            SRVC_RSPONS_SJ, SRVC_RSPONS_CN, REQUST_ATCHMNFL_ID, CREAT_DT, CREAT_ID,
+            UPDT_DT, UPDT_ID, REF_IDS, RE_SRVC_RSPONS_NO, DELETE_YN)
+        VALUES (#{srvcRsponsNo}, #{requstDt}, DATE_FORMAT(#{requstDt}, '%Y%m'),
+            #{rqester1stNm}, #{rqester1stPsitn}, #{rqester1stCttpc}, #{rqester1stEmail},
+            #{rqesterId}, #{rqesterNm}, #{rqesterPsitn}, #{rqesterCttpc}, #{rqesterEmail},
+            #{trgetSrvcCode}, #{srvcRsponsBasisCode}, #{srvcRsponsSj}, #{srvcRsponsCn},
+            #{requstAtchmnflId}, NOW(), #{creatId}, NOW(), #{creatId}, #{refIds}, 
+            #{reSrvcRsponsNo}, 'N')
+    </insert>
+
+    <update id="updateRequst">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            REQUST_DT = #{requstDt}, RQESTER_1ST_NM = #{rqester1stNm},
+            RQESTER_1ST_PSITN = #{rqester1stPsitn}, RQESTER_1ST_CTTPC = #{rqester1stCttpc},
+            RQESTER_1ST_EMAIL = #{rqester1stEmail}, RQESTER_ID = #{rqesterId},
+            RQESTER_NM = #{rqesterNm}, RQESTER_PSITN = #{rqesterPsitn},
+            RQESTER_CTTPC = #{rqesterCttpc}, RQESTER_EMAIL = #{rqesterEmail},
+            TRGET_SRVC_CODE = #{trgetSrvcCode}, TRGET_SRVC_DETAIL_CODE = #{trgetSrvcDetailCode},
+            SRVC_RSPONS_BASIS_CODE = #{srvcRsponsBasisCode}, SRVC_RSPONS_SJ = #{srvcRsponsSj},
+            SRVC_RSPONS_CN = #{srvcRsponsCn}, ETC = #{etc}, REF_IDS = #{refIds}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateReceive">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            RSPONS_1ST_DT = #{rspons1stDt}, TRGET_SRVC_CODE = #{trgetSrvcCode},
+            TRGET_SRVC_DETAIL_CODE = #{trgetSrvcDetailCode},
+            SRVC_RSPONS_BASIS_CODE = #{srvcRsponsBasisCode}, CNFRMR_ID = #{cnfrmrId},
+            SRVC_RSPONS_CL_CODE = #{srvcRsponsClCode}, PROCESS_STDR_CODE = #{processStdrCode},
+            PROCESS_TERM = #{processTerm}, VERIFY_YN = #{verifyYn}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateRspons1st">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            RSPONS_1ST_DT = NOW(), CHARGER_ID = #{updtId},
+            CHANGE_DFFLY_CODE = #{changeDfflyCode}, SRVC_RSPONS_CL_CODE = #{srvcRsponsClCode},
+            PROCESS_STDR_CODE = #{processStdrCode}, PROCESS_TERM = #{processTerm}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateProcess">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            CHANGE_DFFLY_CODE = #{changeDfflyCode}, SRVC_RSPONS_CL_CODE = #{srvcRsponsClCode},
+            PROCESS_STDR_CODE = #{processStdrCode}, SRVC_PROCESS_DTLS = #{srvcProcessDtls},
+            DATA_UPDT_YN = IFNULL(#{dataUpdtYn}, 'N'), PROGRM_UPDT_YN = IFNULL(#{progrmUpdtYn}, 'N'),
+            STOP_INSTL_YN = IFNULL(#{stopInstlYn}, 'N'),
+            NONE_STOP_INSTL_YN = IFNULL(#{noneStopInstlYn}, 'N'), INSTL_YN = IFNULL(#{instlYn}, 'N'),
+            INFRA_OPERT_YN = IFNULL(#{infraOpertYn}, 'N'), ETC = #{etc},
+            SRVC_RSPONS_BASIS_CODE = #{srvcRsponsBasisCode}, PROCESS_DT = NOW(),
+            CHARGER_ID = #{updtId}, RSPONS_ATCHMNFL_ID = #{rsponsAtchmnflId},
+            FNCT_IMPRVM_NO = #{fnctImprvmNo}, WDTB_CNFIRM_NO = #{wdtbCnfirmNo}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateSrProcess">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            SRVC_PROCESS_DTLS = #{srvcProcessDtls}, DATA_UPDT_YN = IFNULL(#{dataUpdtYn}, 'N'),
+            PROGRM_UPDT_YN = IFNULL(#{progrmUpdtYn}, 'N'), STOP_INSTL_YN = IFNULL(#{stopInstlYn}, 'N'),
+            NONE_STOP_INSTL_YN = IFNULL(#{noneStopInstlYn}, 'N'), INSTL_YN = IFNULL(#{instlYn}, 'N'),
+            INFRA_OPERT_YN = IFNULL(#{infraOpertYn}, 'N'), ETC = #{etc},
+            PROCESS_DT = NOW(), CHARGER_ID = #{updtId}, RSPONS_ATCHMNFL_ID = #{rsponsAtchmnflId},
+            FNCT_IMPRVM_NO = #{fnctImprvmNo}, WDTB_CNFIRM_NO = #{wdtbCnfirmNo}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateSrVerify">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            VERIFY_DT = #{verifyDt}, VERIFY_ID = #{updtId}, SRVC_VERIFY_DTLS = #{srvcVerifyDtls}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateSrFinish">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            FINISH_DT = #{finishDt}, FINISH_ID = #{updtId}, SRVC_FIN_DTLS = #{srvcFinDtls}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateSrEv">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
+            CHANGE_DFFLY_CODE = #{changeDfflyCode}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateSrEvReRequest">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, RE_REQUEST_DT = NOW()
+        WHERE SRVC_RSPONS_NO = #{reSrvcRsponsNo}
+    </update>
+
+    <update id="updateCnfrmr">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, CNFRMR_ID = #{updtId}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateWdtbCnfirm">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, 
+            WDTB_CNFIRM_NO = #{wdtbCnfirmNo}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateInfraOpert">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, 
+            INFRA_OPERT_NO = #{infraOpertNo}
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="updateSmsChk">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, SMS_CHK = 'Y'
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="deleteWdtbCnfirm">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, WDTB_CNFIRM_NO = NULL
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="deleteInfraOpert">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId}, INFRA_OPERT_NO = NULL
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <update id="update">
+        UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW()
+            <if test="updtId != null and updtId != ''">
+                , UPDT_ID = #{updtId}
+            </if>
+            <if test="requstDt != null">
+                , REQUST_DT = #{requstDt}
+            </if>
+            <if test="rqester1stNm != null and rqester1stNm != ''">
+                , RQESTER_1ST_NM = #{rqester1stNm}
+            </if>
+            <if test="rqester1stPsitn != null and rqester1stPsitn != ''">
+                , RQESTER_1ST_PSITN = #{rqester1stPsitn}
+            </if>
+            <if test="rqester1stCttpc != null and rqester1stCttpc != ''">
+                , RQESTER_1ST_CTTPC = #{rqester1stCttpc}
+            </if>
+            <if test="rqester1stEmail != null and rqester1stEmail != ''">
+                , RQESTER_1ST_EMAIL = #{rqester1stEmail}
+            </if>
+            <if test="rqesterId != null and rqesterId != ''">
+                , RQESTER_ID = #{rqesterId}
+            </if>
+            <if test="rqesterNm != null and rqesterNm != ''">
+                , RQESTER_NM = #{rqesterNm}
+            </if>
+            <if test="rqesterPsitn != null and rqesterPsitn != ''">
+                , RQESTER_PSITN = #{rqesterPsitn}
+            </if>
+            <if test="rqesterCttpc != null and rqesterCttpc != ''">
+                , RQESTER_CTTPC = #{rqesterCttpc}
+            </if>
+            <if test="rqesterEmail != null and rqesterEmail != ''">
+                , RQESTER_EMAIL = #{rqesterEmail}
+            </if>
+            <if test="trgetSrvcCode != null and trgetSrvcCode != ''">
+                , TRGET_SRVC_CODE = #{trgetSrvcCode}
+            </if>
+            <if test="trgetSrvcDetailCode != null and trgetSrvcDetailCode != ''">
+                , TRGET_SRVC_DETAIL_CODE = #{trgetSrvcDetailCode}
+            </if>
+            <if test="srvcRsponsSj != null and srvcRsponsSj != ''">
+                , SRVC_RSPONS_SJ = #{srvcRsponsSj}
+            </if>
+            <if test="srvcRsponsCn != null and srvcRsponsCn != ''">
+                , SRVC_RSPONS_CN = #{srvcRsponsCn}
+            </if>
+            <if test="etc != null and etc != ''">
+                , ETC = #{etc}
+            </if>
+            <if test="requstAtchmnflId != null and requstAtchmnflId != ''">
+                , REQUST_ATCHMNFL_ID = #{requstAtchmnflId}
+            </if>
+            <if test="rspons1stDt != null">
+                , RSPONS_1ST_DT = #{rspons1stDt}
+            </if>
+            <if test="chargerId != null and chargerId != ''">
+                , CHARGER_ID = #{chargerId}
+            </if>
+            <if test="changeDfflyCode != null and changeDfflyCode != ''">
+                , CHANGE_DFFLY_CODE = #{changeDfflyCode}
+            </if>
+            <if test="srvcRsponsClCode != null and srvcRsponsClCode != ''">
+                , SRVC_RSPONS_CL_CODE = #{srvcRsponsClCode}
+            </if>
+            <if test="processStdrCode != null and processStdrCode != ''">
+                , PROCESS_STDR_CODE = #{processStdrCode}
+            </if>
+            <if test="srvcProcessDtls != null and srvcProcessDtls != ''">
+                , SRVC_PROCESS_DTLS = #{srvcProcessDtls}
+            </if>
+            <if test="dataUpdtYn != null and dataUpdtYn != ''">
+                , DATA_UPDT_YN = #{dataUpdtYn}
+            </if>
+            <if test="progrmUpdtYn != null and progrmUpdtYn != ''">
+                , PROGRM_UPDT_YN = #{progrmUpdtYn}
+            </if>
+            <if test="stopInstlYn != null and stopInstlYn != ''">
+                , STOP_INSTL_YN = #{stopInstlYn}
+            </if>
+            <if test="noneStopInstlYn != null and noneStopInstlYn != ''">
+                , NONE_STOP_INSTL_YN = #{noneStopInstlYn}
+            </if>
+            <if test="instlYn != null and instlYn != ''">
+                , INSTL_YN = #{instlYn}
+            </if>
+            <if test="infraOpertYn != null and infraOpertYn != ''">
+                , INFRA_OPERT_YN = #{infraOpertYn}
+            </if>
+            <if test="srvcRsponsBasisCode != null and srvcRsponsBasisCode != ''">
+                , SRVC_RSPONS_BASIS_CODE = #{srvcRsponsBasisCode}
+            </if>
+            <if test="rsponsAtchmnflId != null and rsponsAtchmnflId != ''">
+                , RSPONS_ATCHMNFL_ID = #{rsponsAtchmnflId}
+            </if>
+            <if test="processDt != null">
+                , PROCESS_DT = #{processDt}
+            </if>
+            <if test="cnfrmrId != null and cnfrmrId != ''">
+                , CNFRMR_ID = #{cnfrmrId}
+            </if>
+            <if test="fnctImprvmNo != null and fnctImprvmNo != ''">
+                , FNCT_IMPRVM_NO = #{fnctImprvmNo}
+            </if>
+            <if test="wdtbCnfirmNo != null and wdtbCnfirmNo != ''">
+                , WDTB_CNFIRM_NO = #{wdtbCnfirmNo}
+            </if>
+            <if test="infraOpertNo != null and infraOpertNo != ''">
+                , INFRA_OPERT_NO = #{infraOpertNo}
+            </if>
+        WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </update>
+
+    <delete id="delete">
+        UPDATE TB_SRVC_RSPONS SET DELETE_YN = 'Y' WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
+    </delete>
+
+    <select id="retrieve" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        WHERE SR.DELETE_YN = 'N'
+        <if test="srvcRsponsNo != null and srvcRsponsNo != ''">
+            AND SR.SRVC_RSPONS_NO = #{srvcRsponsNo}
+        </if>
+        <if test="fnctImprvmNo != null and fnctImprvmNo != ''">
+            AND SR.FNCT_IMPRVM_NO = #{fnctImprvmNo}
+        </if>
+        <if test="wdtbCnfirmNo != null and wdtbCnfirmNo != ''">
+            AND SR.WDTB_CNFIRM_NO = #{wdtbCnfirmNo}
+        </if>
+        <if test="infraOpertNo != null and infraOpertNo != ''">
+            AND SR.INFRA_OPERT_NO = #{infraOpertNo}
+        </if>
+    </select>
+
+    <select id="retrievePagingList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveSrReqList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        <if test="srcRqesterId != null and srcRqesterId != ''">
+            AND (SR.RQESTER_ID LIKE CONCAT('%', #{srcRqesterId}, '%') OR SR.RQESTER_NM LIKE CONCAT('%', #{srcRqesterId}, '%'))
+        </if>
+        AND SR.RSPONS_1ST_DT IS NULL
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveSrRcvList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        <if test="srcRqesterId != null and srcRqesterId != ''">
+            AND (SR.RQESTER_ID LIKE CONCAT('%', #{srcRqesterId}, '%') OR SR.RQESTER_NM LIKE CONCAT('%', #{srcRqesterId}, '%'))
+        </if>
+        AND SR.RSPONS_1ST_DT IS NULL
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveSrProcList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        <if test="srcRqesterId != null and srcRqesterId != ''">
+            AND (SR.RQESTER_ID LIKE CONCAT('%', #{srcRqesterId}, '%') OR SR.RQESTER_NM LIKE CONCAT('%', #{srcRqesterId}, '%'))
+        </if>
+        AND SR.RSPONS_1ST_DT IS NOT NULL AND SR.PROCESS_DT IS NULL
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveSrVrList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        <if test="srcRqesterId != null and srcRqesterId != ''">
+            AND (SR.RQESTER_ID LIKE CONCAT('%', #{srcRqesterId}, '%') OR SR.RQESTER_NM LIKE CONCAT('%', #{srcRqesterId}, '%'))
+        </if>
+        AND SR.RSPONS_1ST_DT IS NOT NULL AND SR.PROCESS_DT IS NOT NULL
+        AND SR.VERIFY_DT IS NULL
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveSrFnList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        <if test="srcRqesterId != null and srcRqesterId != ''">
+            AND (SR.RQESTER_ID LIKE CONCAT('%', #{srcRqesterId}, '%') OR SR.RQESTER_NM LIKE CONCAT('%', #{srcRqesterId}, '%'))
+        </if>
+        AND SR.RSPONS_1ST_DT IS NOT NULL AND SR.PROCESS_DT IS NOT NULL
+        AND SR.VERIFY_DT IS NOT NULL AND SR.FINISH_DT IS NULL
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveSrEvList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        <if test="srcRqesterId != null and srcRqesterId != ''">
+            AND (SR.RQESTER_ID LIKE CONCAT('%', #{srcRqesterId}, '%') OR SR.RQESTER_NM LIKE CONCAT('%', #{srcRqesterId}, '%'))
+        </if>
+        AND (SR.PROCESS_DT IS NOT NULL OR SR.FINISH_DT IS NOT NULL)
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveWdtbPagingList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        AND (SR.PROGRM_UPDT_YN = 'Y' OR SR.STOP_INSTL_YN = 'Y'
+             OR SR.NONE_STOP_INSTL_YN = 'Y' OR SR.INSTL_YN = 'Y')
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrievefnctImprvmPagingList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        ORDER BY SR.SRVC_RSPONS_NO DESC, SR.FNCT_IMPRVM_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrieveInfraOpertPagingList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        AND SR.INFRA_OPERT_YN = 'Y'
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+    <select id="retrievePagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+    </select>
+
+    <select id="retrieveSrReqPagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        AND SR.RSPONS_1ST_DT IS NULL
+    </select>
+
+    <select id="retrieveSrRcvPagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        AND SR.RSPONS_1ST_DT IS NULL
+    </select>
+
+    <select id="retrieveSrProcPagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        AND SR.RSPONS_1ST_DT IS NOT NULL AND SR.PROCESS_DT IS NULL
+    </select>
+
+    <select id="retrieveSrVrPagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        AND SR.RSPONS_1ST_DT IS NOT NULL AND SR.PROCESS_DT IS NOT NULL AND SR.VERIFY_DT IS NULL
+    </select>
+
+    <select id="retrieveSrFnPagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        AND SR.RSPONS_1ST_DT IS NOT NULL AND SR.PROCESS_DT IS NOT NULL
+        AND SR.VERIFY_DT IS NOT NULL AND SR.FINISH_DT IS NULL
+    </select>
+
+    <select id="retrieveSrEvPagingListCnt" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="int">
+        SELECT COUNT(*) FROM TB_SRVC_RSPONS SR
+        <include refid="retrievePagingListWhere"/>
+        <if test="userTyCode eq 'R005'">
+            AND (SR.RQESTER_ID = #{userId} OR LOCATE(#{userId}, SR.REF_IDS) > 0)
+        </if>
+        AND (SR.PROCESS_DT IS NOT NULL OR SR.FINISH_DT IS NOT NULL)
+    </select>
+
+    <select id="retrieveList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        ORDER BY SR.SRVC_RSPONS_NO DESC
+        LIMIT 9
+    </select>
+
+    <select id="retrieveAllList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        ORDER BY SR.SRVC_RSPONS_NO ASC
+    </select>
+
+    <select id="retrieveAllwdtbList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        <include refid="retrievePagingListWhere"/>
+        AND SR.WDTB_CNFIRM_NO IS NOT NULL AND SR.WDTB_CNFIRM_NO != ''
+        ORDER BY SR.WDTB_CNFIRM_NO ASC, SR.SRVC_RSPONS_NO DESC
+    </select>
+
+    <select id="retrieveRqesterNmList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        SELECT DISTINCT RQESTER_NM, RQESTER_PSITN, RQESTER_CTTPC, RQESTER_EMAIL
+        FROM TB_SRVC_RSPONS
+        WHERE DELETE_YN = 'N' AND RQESTER_NM LIKE CONCAT(#{rqesterNm}, '%')
+        ORDER BY RQESTER_NM ASC LIMIT 10
+    </select>
+
+    <select id="retrieveSrvcRsponsNoList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        <include refid="retrieveSelect"/>
+        WHERE SR.DELETE_YN = 'N' AND SRVC_RSPONS_NO LIKE CONCAT(#{srvcRsponsNo}, '%')
+        AND (SR.CHARGER_ID = #{chargerId} OR SR.TRGET_SRVC_CODE IN 
+            (SELECT SYS_CODE FROM TB_SYS_CHARGER WHERE USER_ID = #{chargerId}))
+        ORDER BY SR.SRVC_RSPONS_NO ASC LIMIT 5
+    </select>
+
+    <select id="retrieveRqester1stNmList" parameterType="com.example.itsm_api.vo.SrvcRsponsVO" resultType="com.example.itsm_api.vo.SrvcRsponsVO">
+        SELECT DISTINCT RQESTER_1ST_NM, RQESTER_1ST_PSITN, RQESTER_1ST_CTTPC, RQESTER_1ST_EMAIL
+        FROM TB_SRVC_RSPONS
+        WHERE DELETE_YN = 'N' AND RQESTER_1ST_NM LIKE CONCAT(#{rqester1stNm}, '%')
+        ORDER BY RQESTER_1ST_NM ASC LIMIT 10
+    </select>
+
+    <sql id="retrieveSelect">
+        SELECT SR.SRVC_RSPONS_NO, SR.REQUST_DT, SR.RQESTER_1ST_NM, SR.RQESTER_1ST_PSITN,
+            SR.RQESTER_1ST_CTTPC, SR.RQESTER_1ST_EMAIL, SR.RQESTER_ID,
+            IFNULL(SR.RQESTER_NM, LR.USER_NM) AS RQESTER_NM, SR.RQESTER_PSITN,
+            SR.RQESTER_CTTPC, SR.RQESTER_EMAIL, SR.TRGET_SRVC_CODE, SR.TRGET_SRVC_DETAIL_CODE,
+            SR.SRVC_RSPONS_SJ, SR.SRVC_RSPONS_CN, SR.REQUST_ATCHMNFL_ID, SR.RSPONS_1ST_DT,
+            SR.PROCESS_MT, SR.CHANGE_DFFLY_CODE, SR.SRVC_RSPONS_CL_CODE, SR.PROCESS_STDR_CODE,
+            SR.PROCESS_TERM, SR.SRVC_PROCESS_DTLS, SR.ETC, SR.SRVC_RSPONS_BASIS_CODE,
+            SR.RSPONS_ATCHMNFL_ID, SR.PROCESS_DT, SR.DATA_UPDT_YN, SR.PROGRM_UPDT_YN,
+            SR.INSTL_YN, SR.STOP_INSTL_YN, SR.NONE_STOP_INSTL_YN, SR.INFRA_OPERT_YN,
+            SR.CHARGER_ID, LG.USER_NM AS chargerUserNm, SR.CNFRMR_ID, LF.USER_NM AS cnfrmrUserNm,
+            SR.CREAT_DT AS creatDt, SR.CREAT_ID AS creatId, LC.USER_NM AS creatUserNm,
+            SR.UPDT_DT AS updtDt, SR.UPDT_ID AS updtId, LU.USER_NM AS updtUserNm,
+            SR.FNCT_IMPRVM_NO, SR.WDTB_CNFIRM_NO, SR.INFRA_OPERT_NO, SR.SMS_CHK,
+            SR.RE_REQUEST_DT, SR.RE_SRVC_RSPONS_NO, SR.VERIFY_YN, SR.VERIFY_DT,
+            SR.FINISH_DT, SR.VERIFY_ID, LV.USER_NM AS verifyUserNm, SR.FINISH_ID,
+            LFN.USER_NM AS finishUserNm, SR.SRVC_VERIFY_DTLS, SR.SRVC_FIN_DTLS, SR.REF_IDS
+        FROM TB_SRVC_RSPONS SR
+        LEFT OUTER JOIN TB_LOGIN_INFO LR ON SR.RQESTER_ID = LR.USER_ID
+        LEFT OUTER JOIN TB_LOGIN_INFO LG ON SR.CHARGER_ID = LG.USER_ID
+        LEFT OUTER JOIN TB_LOGIN_INFO LF ON SR.CNFRMR_ID = LF.USER_ID
+        LEFT OUTER JOIN TB_LOGIN_INFO LC ON SR.CREAT_ID = LC.USER_ID
+        LEFT OUTER JOIN TB_LOGIN_INFO LU ON SR.UPDT_ID = LU.USER_ID
+        LEFT OUTER JOIN TB_LOGIN_INFO LV ON SR.VERIFY_ID = LV.USER_ID
+        LEFT OUTER JOIN TB_LOGIN_INFO LFN ON SR.FINISH_ID = LFN.USER_ID
+    </sql>
+
+    <sql id="retrievePagingListWhere">
+        WHERE SR.DELETE_YN = 'N'
+        <if test="srvcRsponsSj != null and srvcRsponsSj != ''">
+            AND SR.SRVC_RSPONS_SJ LIKE CONCAT('%', #{srvcRsponsSj}, '%')
+        </if>
+        <if test="srvcRsponsCn != null and srvcRsponsCn != ''">
+            AND SR.SRVC_RSPONS_CN LIKE CONCAT('%', #{srvcRsponsCn}, '%')
+        </if>
+        <if test="srvcRsponsNo != null and srvcRsponsNo != ''">
+            AND SR.SRVC_RSPONS_NO LIKE CONCAT('%', #{srvcRsponsNo}, '%')
+        </if>
+        <if test="fnctImprvmNo != null and fnctImprvmNo != ''">
+            AND SR.FNCT_IMPRVM_NO LIKE CONCAT('%', #{fnctImprvmNo}, '%')
+        </if>
+        <if test="wdtbCnfirmNo != null and wdtbCnfirmNo != ''">
+            AND SR.WDTB_CNFIRM_NO LIKE CONCAT('%', #{wdtbCnfirmNo}, '%')
+        </if>
+        <if test="infraOpertNo != null and infraOpertNo != ''">
+            AND SR.INFRA_OPERT_NO LIKE CONCAT('%', #{infraOpertNo}, '%')
+        </if>
+        <if test="processMt != null and processMt != ''">
+            AND SR.PROCESS_MT LIKE CONCAT('%', #{processMt}, '%')
+        </if>
+        <if test="trgetSrvcCode != null and trgetSrvcCode != ''">
+            AND SR.TRGET_SRVC_CODE = #{trgetSrvcCode}
+        </if>
+        <if test="srvcRsponsClCode != null and srvcRsponsClCode != ''">
+            AND SR.SRVC_RSPONS_CL_CODE = #{srvcRsponsClCode}
+        </if>
+        <if test="processStdrCode != null and processStdrCode != ''">
+            AND SR.PROCESS_STDR_CODE = #{processStdrCode}
+        </if>
+        <if test="rqesterId != null and rqesterId != ''">
+            AND SR.RQESTER_ID = #{rqesterId}
+        </if>
+        <if test="cnfrmrId != null and cnfrmrId != ''">
+            AND SR.CNFRMR_ID = #{cnfrmrId}
+        </if>
+        <if test="progrmUpdtYn != null and progrmUpdtYn != ''">
+            AND SR.PROGRM_UPDT_YN = #{progrmUpdtYn}
+        </if>
+        <if test="infraOpertYn != null and infraOpertYn != ''">
+            AND SR.INFRA_OPERT_YN = #{infraOpertYn}
+        </if>
+        <if test="chargerId != null and chargerId != ''">
+            AND SR.CHARGER_ID = #{chargerId}
+        </if>
+        <if test="excludeprocessYn != null and excludeprocessYn == 'Y'">
+            AND SR.PROCESS_DT IS NULL
+        </if>
+    </sql>
+
+</mapper>

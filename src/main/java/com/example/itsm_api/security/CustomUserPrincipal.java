@@ -3,6 +3,8 @@ package com.example.itsm_api.security;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +14,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
  * Custom UserPrincipal that extracts user attributes from Keycloak JWT token
  */
 public class CustomUserPrincipal implements UserDetails {
+    private static final Logger log = LoggerFactory.getLogger(CustomUserPrincipal.class);
 
     private final String username;
     private final String email;
@@ -31,22 +34,22 @@ public class CustomUserPrincipal implements UserDetails {
         this.email = jwt.getClaimAsString("email");
         this.firstName = jwt.getClaimAsString("given_name");
         
-        // Extract custom attributes from the "attributes" claim in the JWT
-        var attributes = jwt.getClaimAsMap("attributes");
-        if (attributes != null) {
-            this.userTyCode = extractList(attributes, "userTyCode");
-            this.userSttusCode = extractList(attributes, "userSttusCode");
-            this.deptCd = extractList(attributes, "deptCd");
-            this.deptNm = extractList(attributes, "deptNm");
-            this.position = extractList(attributes, "position");
-            this.classNm = extractList(attributes, "classNm");
-        } else {
-            this.userTyCode = Collections.emptyList();
-            this.userSttusCode = Collections.emptyList();
-            this.deptCd = Collections.emptyList();
-            this.deptNm = Collections.emptyList();
-            this.position = Collections.emptyList();
-            this.classNm = Collections.emptyList();
+        // Extract custom attributes - try direct claims first, then check "attributes" map
+        this.userTyCode = extractClaimAsList(jwt, "userTyCode");
+        this.userSttusCode = extractClaimAsList(jwt, "userSttusCode");
+        this.deptCd = extractClaimAsList(jwt, "deptCd");
+        this.deptNm = extractClaimAsList(jwt, "deptNm");
+        this.position = extractClaimAsList(jwt, "position");
+        this.classNm = extractClaimAsList(jwt, "classNm");
+
+        // Log extracted values for debugging
+        log.debug("JWT User Principal created - username: {}, userTyCode: {}, userSttusCode: {}", 
+                  username, userTyCode, userSttusCode);
+        
+        // Log warning if critical attributes are missing
+        if (userTyCode.isEmpty()) {
+            log.warn("User {} has no userTyCode in JWT. Available claims: {}", 
+                     username, jwt.getClaims().keySet());
         }
 
         // Extract realm roles and convert to GrantedAuthority
@@ -62,16 +65,35 @@ public class CustomUserPrincipal implements UserDetails {
         }
     }
 
+    /**
+     * Extract a claim from JWT as a List of Strings.
+     * First tries to get the claim directly from the JWT.
+     * If not found, checks inside the "attributes" claim.
+     * Handles both String and List values.
+     */
     @SuppressWarnings("unchecked")
-    private List<String> extractList(Object map, String key) {
-        if (map instanceof java.util.Map) {
-            var value = ((java.util.Map<String, Object>) map).get(key);
+    private List<String> extractClaimAsList(Jwt jwt, String claimName) {
+        // Try to get claim directly from JWT
+        Object directClaim = jwt.getClaim(claimName);
+        if (directClaim != null) {
+            if (directClaim instanceof List) {
+                return (List<String>) directClaim;
+            } else if (directClaim instanceof String) {
+                return Collections.singletonList((String) directClaim);
+            }
+        }
+        
+        // Fallback: try to get from "attributes" map
+        var attributes = jwt.getClaimAsMap("attributes");
+        if (attributes != null) {
+            var value = attributes.get(claimName);
             if (value instanceof List) {
                 return (List<String>) value;
             } else if (value instanceof String) {
                 return Collections.singletonList((String) value);
             }
         }
+        
         return Collections.emptyList();
     }
 

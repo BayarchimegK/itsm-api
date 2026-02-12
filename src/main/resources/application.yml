@@ -5,15 +5,20 @@ spring:
     url: jdbc:mysql://localhost:3308/itsmdb
     username: root
     password: 1234
-  jpa:
-    hibernate:
-      ddl-auto: update
-    show-sql: true
+    driver-class-name: com.mysql.cj.jdbc.Driver
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://192.168.0.238:8080/realms/itsm
 
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.example.itsm_api.vo
+  configuration:
+    call-setters-on-nulls: true
+    use-actual-param-name: true
+    map-underscore-to-camel-case: true
+
 server:
-  port: 8089
+  port: 8090

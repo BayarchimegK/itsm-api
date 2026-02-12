@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.itsm_api.template_srvc.SrvcRsponsMapper">
+
+    <insert id="create" parameterType="com.example.itsm_api.template_srvc.SrvcRsponsVO">
+        <selectKey keyProperty="srvcRsponsNo" resultType="String" order="BEFORE">
+            SELECT
+                 ifnull(
+                   (SELECT
+                     CONCAT(
+                       substring(
+                         MAX(SRVC_RSPONS_NO)
+                        ,1
+                        ,8)
+                      ,LPAD(
+                         CAST(
+                           substring(
+                             MAX(SRVC_RSPONS_NO)
+                            ,9) AS UNSIGNED) +
+                         1
+                        ,3
+                        ,'0'))
+                    FROM
+                     TB_SRVC_RSPONS
+                    WHERE
+                     SRVC_RSPONS_NO LIKE
+                       concat(
+                         'SR-'
+                        ,date_format(
+                           now()
+                          ,'%y%m')
+                        ,'-%'))
+                  ,concat(
+                     'SR-'
+                    ,date_format(
+                       now()
+                      ,'%y%m')
+                    ,'-001'))
+                   srvcRsponsNo
+        </selectKey>
+            INSERT INTO TB_SRVC_RSPONS(SRVC_RSPONS_NO
+                                    , REQUST_DT     
+                                    , PROCESS_MT                            
+                                    , RQESTER_1ST_NM
+                                    , RQESTER_1ST_PSITN
+                                    , RQESTER_1ST_CTTPC
+                                    , RQESTER_1ST_EMAIL
+                                    , RQESTER_ID
+                                    , RQESTER_NM
+                                    , RQESTER_PSITN
+                                    , RQESTER_CTTPC
+                                    , RQESTER_EMAIL
+                                    , TRGET_SRVC_CODE
+                                    , SRVC_RSPONS_BASIS_CODE
+                                    , SRVC_RSPONS_SJ
+                                    , SRVC_RSPONS_CN
+                                    , ETC
+                                    , REQUST_ATCHMNFL_ID
+                                    , CREAT_DT
+                                    , CREAT_ID
+                                    , UPDT_DT
+                                    , UPDT_ID
+                                    , REF_IDS
+                                    , DELETE_YN)
+            VALUES (#{srvcRsponsNo}
+                  , #{requstDt}
+                  , date_format(#{requstDt}, '%Y%m')
+                  , #{rqester1stNm}
+                  , #{rqester1stPsitn}
+                  , #{rqester1stCttpc}
+                  , #{rqester1stEmail}
+                  , #{rqesterId}
+                  , #{rqesterNm}                  
+                  , #{rqesterPsitn}               
+                  , #{rqesterCttpc}
+                  , #{rqesterEmail}
+                  , #{trgetSrvcCode}
+                  , #{srvcRsponsBasisCode}
+                  , #{srvcRsponsSj}
+                  , #{srvcRsponsCn}
+                  , #{etc}
+                  , #{requstAtchmnflId}
+                  , NOW()
+                  , #{creatId}
+                  , NOW()
+                  , #{creatId}
+                  , #{refIds}
+                  , 'N')
+    </insert>
+
+    <insert id="createSrReRequest" parameterType="com.example.itsm_api.template_srvc.SrvcRsponsVO">
+        <selectKey keyProperty="srvcRsponsNo" resultType="String" order="BEFORE">
+            SELECT
+                 ifnull(
+                   (SELECT
+                     CONCAT(
+                       substring(
+                         MAX(SRVC_RSPONS_NO)
+                        ,1
+                        ,8)
+                      ,LPAD(
+                         CAST(
+                           substring(
+                             MAX(SRVC_RSPONS_NO)
+                            ,9) AS UNSIGNED) +
+                         1
+                        ,3
+                        ,'0'))
+                    FROM
+                     TB_SRVC_RSPONS
+                    WHERE
+                     SRVC_RSPONS_NO LIKE
+                       concat(
+                         'SR-'
+                        ,date_format(
+                           now()
+                          ,'%y%m')
+                        ,'-%'))
+                  ,concat(
+                     'SR-'
+                    ,date_format(
+                       now()
+                      ,'%y%m')
+                    ,'-001'))
+                   srvcRsponsNo
+        </selectKey>
+            INSERT INTO TB_SRVC_RSPONS(SRVC_RSPONS_NO
+                                    , REQUST_DT     
+                                    , PROCESS_MT
+                                    , RQESTER_1ST_NM
+                                    , RQESTER_1ST_PSITN
+                                    , RQESTER_1ST_CTTPC
+                                    , RQESTER_1ST_EMAIL
+                                    , RQESTER_ID
+                                    , RQESTER_NM
+                                    , RQESTER_PSITN
+                                    , RQESTER_CTTPC
+                                    , RQESTER_EMAIL
+                                    , TRGET_SRVC_CODE
+                                    , SRVC_RSPONS_BASIS_CODE
+                                    , SRVC_RSPONS_SJ
+                                    , SRVC_RSPONS_CN
+                                    , REQUST_ATCHMNFL_ID
+                                    , CREAT_DT
+                                    , CREAT_ID
+                                    , UPDT_DT
+                                    , UPDT_ID
+                                    , REF_IDS
+                                    , RE_SRVC_RSPONS_NO
+                                    , DELETE_YN)
+            VALUES (#{srvcRsponsNo}
+                  , #{requstDt}
+                  , date_format(#{requstDt}, '%Y%m')
+                  , #{rqester1stNm}
+                  , #{rqester1stPsitn}
+                  , #{rqester1stCttpc}
+                  , #{rqester1stEmail}
+                  , #{rqesterId}
+                  , #{rqesterNm}                  
+                  , #{rqesterPsitn}               
+                  , #{rqesterCttpc}
+                  , #{rqesterEmail}
+                  , #{trgetSrvcCode}
+                  , #{srvcRsponsBasisCode}
+                  , #{srvcRsponsSj}
+                  , #{srvcRsponsCn}
+                  , #{requstAtchmnflId}
+                  , NOW()
+                  , #{creatId}
+                  , NOW()
+                  , #{creatId}
+                  , #{refIds}
+                  , #{reSrvcRsponsNo}
+                  , 'N')
+    </insert>
+
+    <update id="updateRequst">
+            UPDATE TB_SRVC_RSPONS
+               SET UPDT_DT = NOW()
+                 , UPDT_ID = #{updtId}
+                 , REQUST_DT = #{requstDt}
+                 , RQESTER_1ST_NM = #{rqester1stNm}
+                 , RQESTER_1ST_PSITN = #{rqester1stPsitn}
+                 , RQESTER_1ST_CTTPC = #{rqester1stCttpc}
+                 , RQESTER_1ST_EMAIL = #{rqester1stEmail}
+                 , RQESTER_ID = #{rqesterId}
+                 , RQESTER_NM = #{rqesterNm}
+                 , RQESTER_PSITN = #{rqesterPsitn}
+                 , RQESTER_CTTPC = #{rqesterCttpc}
+                 , RQESTER_EMAIL = #{rqesterEmail}
+                 , TRGET_SRVC_CODE = #{trgetSrvcCode}
+                 , TRGET_SRVC_DETAIL_CODE = #{trgetSrvcDetailCode}
+                 , SRVC_RSPONS_BASIS_CODE = #{srvcRsponsBasisCode}
+                 , SRVC_RSPONS_SJ = #{srvcRsponsSj}
+                 , SRVC_RSPONS_CN = #{srvcRsponsCn}
+                 , ETC = #{etc}
+                 , REF_IDS = #{refIds}
+            WHERE SRVC_RSPONS_NO= #{srvcRsponsNo}
+    </update>
+
+    <update id="updateReceive">
+            UPDATE TB_SRVC_RSPONS
+               SET UPDT_DT = NOW()
+                 , UPDT_ID = #{updtId}
+                 , RSPONS_1ST_DT = #{rspons1stDt}
+                 , TRGET_SRVC_CODE = #{trgetSrvcCode}
+                 , TRGET_SRVC_DETAIL_CODE = #{trgetSrvcDetailCode}
+                 , SRVC_RSPONS_BASIS_CODE = #{srvcRsponsBasisCode} 
+                 , CNFRMR_ID = #{cnfrmrId}
+                 , SRVC_RSPONS_CL_CODE = #{srvcRsponsClCode} 
+                 , PROCESS_STDR_CODE = #{processStdrCode}
+                 , PROCESS_TERM = #{processTerm}
+                 , VERIFY_YN = #{verifyYn}
+            WHERE SRVC_RSPONS_NO= #{srvcRsponsNo}
+    </update>
+
+    <update id="updateRspons1st">
+            UPDATE TB_SRVC_RSPONS
+               SET UPDT_DT = NOW()
+                 , UPDT_ID = #{updtId}
+                 , RSPONS_1ST_DT = NOW()
+                 , CHARGER_ID = #{updtId}
+                 , CHANGE_DFFLY_CODE = #{changeDfflyCode}
+            WHERE SRVC_RSPONS_NO= #{srvcRsponsNo}
+    </update>
+
+</mapper>
