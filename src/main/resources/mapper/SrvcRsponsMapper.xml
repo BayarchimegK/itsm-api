@@ -107,7 +107,7 @@
 
     <update id="updateSrVerify">
         UPDATE TB_SRVC_RSPONS SET UPDT_DT = NOW(), UPDT_ID = #{updtId},
-            VERIFY_DT = #{verifyDt}, VERIFY_ID = #{updtId}, SRVC_VERIFY_DTLS = #{srvcVerifyDtls}
+            VERIFY_DT = #{verifyDt}, VERIFY_ID = #{updtId}, VERIFY_YN = #{verifyYn}, SRVC_VERIFY_DTLS = #{srvcVerifyDtls}
         WHERE SRVC_RSPONS_NO = #{srvcRsponsNo}
     </update>
 

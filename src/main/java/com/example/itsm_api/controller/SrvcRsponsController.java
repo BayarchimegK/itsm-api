@@ -400,6 +400,18 @@ public class SrvcRsponsController {
             if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
                 vo.setUpdtId(user.getUsername());
             }
+            // Ensure verify timestamp is recorded even if client omitted it
+            if (vo.getVerifyDt() == null) {
+                vo.setVerifyDt(new java.util.Date());
+            }
+            // Populate verifyId for response/display purposes
+            if (vo.getVerifyId() == null || vo.getVerifyId().isEmpty()) {
+                vo.setVerifyId(vo.getUpdtId());
+            }
+            // Mark verification flag so UI or queries depending on VERIFY_YN see completed state
+            if (vo.getVerifyYn() == null || vo.getVerifyYn().isEmpty()) {
+                vo.setVerifyYn("Y");
+            }
             int result = srvcRsponsService.updateSrVerify(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -431,6 +443,13 @@ public class SrvcRsponsController {
             CustomUserPrincipal user = authorizationService.getCurrentUser();
             if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
                 vo.setUpdtId(user.getUsername());
+            }
+            // Ensure finish timestamp is recorded and finish flag set
+            if (vo.getFinishDt() == null) {
+                vo.setFinishDt(new java.util.Date());
+            }
+            if (vo.getFinishId() == null || vo.getFinishId().isEmpty()) {
+                vo.setFinishId(vo.getUpdtId());
             }
             int result = srvcRsponsService.updateSrFinish(vo);
             
