@@ -56,7 +56,8 @@ public class SrvcRsponsController {
      */
     @PostMapping("/create")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> createSr(@RequestBody SrvcRsponsVO vo) {
+    public ResponseEntity<?> createSr(@RequestBody SrvcRsponsVO vo,
+                                      @RequestHeader(value = "X-User-Id", required = false) String xUserId) {
         try {
             CustomUserPrincipal user = authorizationService.getCurrentUser();
             log.debug("Creating SR for user: {}, userTyCode: {}", user.getUsername(), user.getUserTyCode());
@@ -65,6 +66,20 @@ public class SrvcRsponsController {
             vo.setRqesterId(user.getUsername());
             vo.setRqesterNm(user.getFirstName());
             vo.setRqesterEmail(user.getEmail());
+            
+            // Ensure creatId/updtId are populated: prefer existing VO, then X-User-Id header, then authenticated user
+            String creatorId = vo.getCreatId();
+            if (creatorId == null || creatorId.isEmpty()) {
+                if (xUserId != null && !xUserId.isEmpty()) {
+                    creatorId = xUserId;
+                } else {
+                    creatorId = user.getUsername();
+                }
+            }
+            vo.setCreatId(creatorId);
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(creatorId);
+            }
             
             srvcRsponsService.create(vo);
             
@@ -186,6 +201,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateRequest(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateRequst(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -193,8 +212,33 @@ public class SrvcRsponsController {
                     "message", result > 0 ? "Updated successfully" : "No records updated"
             ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "error", e.getMessage()));
+            log.error("Error in updateReceive: ", e);
+            // Detect SQL data truncation (MySQL) and return 400 with helpful info
+            Throwable cause = e;
+            while (cause.getCause() != null) {
+                cause = cause.getCause();
+            }
+            String causeMsg = cause.getMessage() == null ? "" : cause.getMessage();
+            if (cause.getClass().getName().endsWith("MysqlDataTruncation") || causeMsg.contains("Data too long for column")) {
+                Map<String, Object> body = new HashMap<>();
+                body.put("success", false);
+                body.put("error", "Data too long for DB column");
+                body.put("sqlError", causeMsg);
+                // include the likely offending value to help client fix payload
+                body.put("srvcRsponsClCode", vo.getSrvcRsponsClCode());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+            }
+
+            StringBuilder trace = new StringBuilder();
+            for (StackTraceElement ste : e.getStackTrace()) {
+                trace.append(ste.toString()).append("\\n");
+            }
+            Map<String, Object> body = new HashMap<>();
+            body.put("success", false);
+            body.put("error", e.getMessage());
+            body.put("exception", e.getClass().getName());
+            body.put("trace", trace.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
         }
     }
 
@@ -214,6 +258,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateReceive(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateReceive(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -221,8 +269,17 @@ public class SrvcRsponsController {
                     "message", result > 0 ? "SR received and acknowledged" : "No records updated"
             ));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("success", false, "error", e.getMessage()));
+            log.error("Error in updateReceive: ", e);
+            StringBuilder trace = new StringBuilder();
+            for (StackTraceElement ste : e.getStackTrace()) {
+                trace.append(ste.toString()).append("\\n");
+            }
+            Map<String, Object> body = new HashMap<>();
+            body.put("success", false);
+            body.put("error", e.getMessage());
+            body.put("exception", e.getClass().getName());
+            body.put("trace", trace.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
         }
     }
 
@@ -242,6 +299,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateRspons1st(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateRspons1st(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -270,6 +331,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateProcess(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateProcess(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -298,6 +363,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateSrProcess(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateSrProcess(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -327,6 +396,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateSrVerify(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateSrVerify(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -355,6 +428,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateSrFinish(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateSrFinish(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -383,6 +460,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateSrEv(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateSrEv(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -411,6 +492,10 @@ public class SrvcRsponsController {
     public ResponseEntity<?> updateSrEvReRequest(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.updateSrEvReRequest(vo);
             
             return ResponseEntity.ok(Map.of(
@@ -439,6 +524,14 @@ public class SrvcRsponsController {
     public ResponseEntity<?> createSrReRequest(@PathVariable String id, @RequestBody SrvcRsponsVO vo) {
         try {
             vo.setSrvcRsponsNo(id);
+            CustomUserPrincipal user = authorizationService.getCurrentUser();
+            // set creat/updt id for re-request creation
+            if (vo.getCreatId() == null || vo.getCreatId().isEmpty()) {
+                vo.setCreatId(user.getUsername());
+            }
+            if (vo.getUpdtId() == null || vo.getUpdtId().isEmpty()) {
+                vo.setUpdtId(user.getUsername());
+            }
             int result = srvcRsponsService.createSrReRequest(vo);
             
             Map<String, Object> response = new HashMap<>();

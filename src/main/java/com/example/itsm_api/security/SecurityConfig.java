@@ -88,15 +88,54 @@ public CorsConfigurationSource corsConfigurationSource() {
 
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         var realmAccess = jwt.getClaimAsMap("realm_access");
-        if (realmAccess == null || !realmAccess.containsKey("roles")) {
-            return Collections.emptyList();
+        var authorities = new java.util.ArrayList<GrantedAuthority>();
+
+        if (realmAccess != null && realmAccess.containsKey("roles")) {
+            @SuppressWarnings("unchecked")
+            var roles = (Collection<String>) realmAccess.get("roles");
+            roles.stream()
+                    .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                    .forEach(authorities::add);
         }
 
-        @SuppressWarnings("unchecked")
-        var roles = (Collection<String>) realmAccess.get("roles");
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                .collect(Collectors.toList());
+        // Also map userTyCode claim values (e.g. R001 -> MANAGER) into ROLE_* authorities
+        Object userTyClaim = jwt.getClaim("userTyCode");
+        java.util.List<String> userTyCodes = new java.util.ArrayList<>();
+        if (userTyClaim instanceof Collection) {
+            @SuppressWarnings("unchecked")
+            var list = (Collection<String>) userTyClaim;
+            userTyCodes.addAll(list);
+        } else if (userTyClaim instanceof String) {
+            userTyCodes.add((String) userTyClaim);
+        } else {
+            // try attributes map fallback
+            var attrs = jwt.getClaimAsMap("attributes");
+            if (attrs != null && attrs.get("userTyCode") != null) {
+                Object v = attrs.get("userTyCode");
+                if (v instanceof Collection) {
+                    @SuppressWarnings("unchecked")
+                    var list = (Collection<String>) v;
+                    userTyCodes.addAll(list);
+                } else if (v instanceof String) {
+                    userTyCodes.add((String) v);
+                }
+            }
+        }
+
+        for (String code : userTyCodes) {
+            String mapped = switch (code) {
+                case "R001" -> "ADMIN"; // treat R001 as Admin by request
+                case "R002" -> "MANAGER";
+                case "R003" -> "HANDLER";
+                case "R005" -> "REQUESTER";
+                default -> null;
+            };
+            if (mapped != null) {
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + mapped));
+            }
+        }
+
+        return authorities;
     }
 
     /**
@@ -139,11 +178,20 @@ public CorsConfigurationSource corsConfigurationSource() {
             if (delegate != null) {
                 try {
                     return delegate.decode(token);
+                } catch (org.springframework.security.oauth2.jwt.JwtException je) {
+                    // already a JwtException -> rethrow so the framework treats it as auth failure
+                    throw je;
                 } catch (Exception e) {
-                    System.err.println("ERROR decoding JWT token: " + e.getMessage());
-                    System.err.println("Issuer URI: " + issuerUri);
-                    e.printStackTrace();
-                    throw e;
+                    // Unwrap causes to detect parser ParseException (thrown by Nimbus) and map it to JwtException
+                    Throwable cause = e;
+                    while (cause != null) {
+                        if (cause instanceof java.text.ParseException) {
+                            throw new org.springframework.security.oauth2.jwt.JwtException("Malformed JWT: " + cause.getMessage(), e);
+                        }
+                        cause = cause.getCause();
+                    }
+                    // wrap other exceptions to JwtException so Spring Security returns 401
+                    throw new org.springframework.security.oauth2.jwt.JwtException("Error decoding JWT: " + e.getMessage(), e);
                 }
             } else if (initException != null) {
                 throw new IllegalStateException("JWT decoder not available - Keycloak configuration could not be resolved", initException);

@@ -90,6 +90,7 @@ public class SrvcRsponsVO {
     private String reSrvcRsponsCn;
     private String trgetSrvcCode;
     private String trgetSrvcCodeNm;
+    private String trgetSrvcDetailCode;
     private String trgetSrvcCodeSubNm1;
     private String trgetSrvcCodeSubNm2;
     private String trgetSrvcCodeSubNm3;
@@ -279,6 +280,8 @@ public class SrvcRsponsVO {
     public void setTrgetSrvcCode(String trgetSrvcCode) { this.trgetSrvcCode = trgetSrvcCode; }
     public String getTrgetSrvcCodeNm() { return trgetSrvcCodeNm; }
     public void setTrgetSrvcCodeNm(String trgetSrvcCodeNm) { this.trgetSrvcCodeNm = trgetSrvcCodeNm; }
+    public String getTrgetSrvcDetailCode() { return trgetSrvcDetailCode; }
+    public void setTrgetSrvcDetailCode(String trgetSrvcDetailCode) { this.trgetSrvcDetailCode = trgetSrvcDetailCode; }
 
     public String getTrgetSrvcCodeSubNm1() { return trgetSrvcCodeSubNm1; }
     public void setTrgetSrvcCodeSubNm1(String trgetSrvcCodeSubNm1) { this.trgetSrvcCodeSubNm1 = trgetSrvcCodeSubNm1; }

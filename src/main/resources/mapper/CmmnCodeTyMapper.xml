@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.itsm_api.cmmncode.dao.CmmnCodeTyMapper">
+
+    <select id="retrieveList" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeTyVO" resultType="com.example.itsm_api.cmmncode.vo.CmmnCodeTyVO">
+        SELECT CMMN_CODE_TY cmmnCodeTy,
+               CMMN_CODE_TY_NM cmmnCodeTyNm,
+               CMMN_CODE_TY_DC cmmnCodeTyDc,
+               CREAT_DT creatDt,
+               UPDT_DT updtDt,
+               DELETE_YN deleteYn
+        FROM TB_CMMN_CODE_TY
+        <include refid="retrieveListWhere" />
+
+     </select>
+
+    <select id="retrieveAllList" resultType="com.example.itsm_api.cmmncode.vo.CmmnCodeTyVO">
+        SELECT CMMN_CODE_TY cmmnCodeTy,
+               CMMN_CODE_TY_NM cmmnCodeTyNm,
+               CMMN_CODE_TY_DC cmmnCodeTyDc,
+               CREAT_DT creatDt,
+               UPDT_DT updtDt,
+               DELETE_YN deleteYn
+        FROM TB_CMMN_CODE_TY
+
+     </select>
+
+    <sql id="retrieveListWhere">
+    <where>
+        <if test="deleteYn != null and deleteYn != ''">
+            DELETE_YN = #{deleteYn}
+         </if>
+         <if test="deleteYn == null or deleteYn == ''">
+            DELETE_YN in ('Y','N')
+         </if>
+        <if test="cmmnCodeTy != null and cmmnCodeTy != ''">
+            AND CMMN_CODE_TY = #{cmmnCodeTy}
+        </if>
+        <if test="cmmnCodeTyNm != null and cmmnCodeTyNm != ''">
+            AND CMMN_CODE_TY_NM = #{cmmnCodeTyNm}
+        </if>
+        <if test="cmmnCodeTyDc != null and cmmnCodeTyDc != ''">
+            AND CMMN_CODE_TY_DC = #{cmmnCodeTyDc}
+        </if>
+    </where>
+    </sql>
+
+    <insert id="create" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeTyVO">
+            INSERT INTO TB_CMMN_CODE_TY(CMMN_CODE_TY
+                                      ,CMMN_CODE_TY_NM
+                                      ,CMMN_CODE_TY_DC
+                                      ,CREAT_DT
+                                      ,CREAT_ID
+                                      ,UPDT_DT
+                                      ,UPDT_ID
+                                      ,DELETE_YN
+                                      )
+                            VALUES (#{cmmnCodeTy}
+                                  , #{cmmnCodeTyNm}
+                                  , #{cmmnCodeTyDc}
+                                  , NOW()
+                                  , #{creatId}
+                                  , NOW()
+                                  , #{creatId}
+                                  , 'N'
+                                  )
+    </insert>
+
+    <update id="update">
+            UPDATE TB_CMMN_CODE_TY
+               SET UPDT_DT = NOW()
+                 , UPDT_ID = #{updtId}
+                <if test="cmmnCodeTy != null and cmmnCodeTy != ''">
+                    , CMMN_CODE_TY_NM = #{cmmnCodeTy}
+                </if>
+                <if test="cmmnCodeTyDc != null and cmmnCodeTyDc != ''">
+                    , CMMN_CODE_TY_DC = #{cmmnCodeTyDc}
+                </if>
+                <if test="deleteYn != null and deleteYn != ''">
+                    , DELETE_YN = #{deleteYn}
+                </if>
+            WHERE CMMN_CODE_TY= #{cmmnCodeTy}
+    </update>
+
+    <update id="delete">
+            UPDATE TB_CMMN_CODE_TY
+               SET UPDT_DT = NOW()
+                 , UPDT_ID = #{updtId}
+                 , DELETE_YN = #{deleteYn}
+            WHERE CMMN_CODE_TY= #{cmmnCodeTy}
+    </update>
+</mapper>

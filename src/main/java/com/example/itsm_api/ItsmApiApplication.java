@@ -7,7 +7,7 @@ import org.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
-@MapperScan("com.example.itsm_api.mapper")
+@MapperScan({"com.example.itsm_api.mapper","com.example.itsm_api.cmmncode.dao"})
 public class ItsmApiApplication {
 
 	public static void main(String[] args) {

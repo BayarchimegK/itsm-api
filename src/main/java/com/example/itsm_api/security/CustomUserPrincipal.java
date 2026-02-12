@@ -52,17 +52,35 @@ public class CustomUserPrincipal implements UserDetails {
                      username, jwt.getClaims().keySet());
         }
 
-        // Extract realm roles and convert to GrantedAuthority
+        // Build authorities: include realm roles and mapped userTyCode roles
+        var authoritiesList = new java.util.ArrayList<GrantedAuthority>();
+
         var realmAccess = jwt.getClaimAsMap("realm_access");
         if (realmAccess != null && realmAccess.containsKey("roles")) {
             @SuppressWarnings("unchecked")
             var roles = (Collection<String>) realmAccess.get("roles");
-            this.authorities = roles.stream()
+            roles.stream()
                     .map(role -> new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
-                    .toList();
-        } else {
-            this.authorities = Collections.emptyList();
+                    .forEach(authoritiesList::add);
         }
+
+        // Map userTyCode values (R001,R002,...) into ROLE_* for Spring @PreAuthorize checks
+        if (this.userTyCode != null && !this.userTyCode.isEmpty()) {
+            this.userTyCode.stream().distinct().forEach(code -> {
+                String mapped = switch (code) {
+                    case "R001" -> "ADMIN"; // treat R001 as Admin
+                    case "R002" -> "MANAGER";
+                    case "R003" -> "HANDLER";
+                    case "R005" -> "REQUESTER";
+                    default -> null;
+                };
+                if (mapped != null) {
+                    authoritiesList.add(new SimpleGrantedAuthority("ROLE_" + mapped));
+                }
+            });
+        }
+
+        this.authorities = authoritiesList;
     }
 
     /**

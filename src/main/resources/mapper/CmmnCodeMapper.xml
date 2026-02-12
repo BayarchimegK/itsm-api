@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.itsm_api.cmmncode.dao.CmmnCodeMapper">
+
+   <insert id="create" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO">
+            INSERT INTO TB_CMMN_CODE(CMMN_CODE_TY
+                                      ,CMMN_CODE
+                                      ,CMMN_CODE_NM
+                                      ,CMMN_CODE_DC
+                                      ,SORT_NO
+                                      ,CREAT_DT
+                                      ,CREAT_ID
+                                      ,UPDT_DT
+                                      ,UPDT_ID
+                                      ,DELETE_YN
+                                      ,CMMN_CODE_SUB_NM1
+                                      ,CMMN_CODE_SUB_NM2
+                                      ,CMMN_CODE_SUB_NM3)
+                            VALUES (#{cmmnCodeTy}
+                                  , #{cmmnCode}
+                                  , #{cmmnCodeNm}
+                                  , #{cmmnCodeDc}
+                                  , #{sortNo}
+                                  , NOW()
+                                  , #{creatId}
+                                  , NOW()
+                                  , #{creatId}
+                                  , 'N'
+                                  , #{cmmnCodeSubNm1}
+                                  , #{cmmnCodeSubNm2}
+                                  , #{cmmnCodeSubNm3}
+                                  )
+    </insert>
+
+    <update id="update">
+            UPDATE TB_CMMN_CODE
+               SET UPDT_DT = NOW()
+                 , UPDT_ID = #{updtId}
+                 , CMMN_CODE_NM = #{cmmnCodeNm}
+                 , CMMN_CODE_DC = #{cmmnCodeDc}
+                 , CMMN_CODE_SUB_NM1 = #{cmmnCodeSubNm1}
+                 , CMMN_CODE_SUB_NM2 = #{cmmnCodeSubNm2}
+                 , CMMN_CODE_SUB_NM3 = #{cmmnCodeSubNm3}
+                 , SORT_NO = IFNULL(#{sortNo}, 0)
+            WHERE CMMN_CODE= #{cmmnCode}
+    </update>
+
+    <delete id="delete">
+            UPDATE TB_CMMN_CODE
+               SET DELETE_YN = 'Y'
+            WHERE CMMN_CODE= #{cmmnCode}
+
+    </delete>
+
+       <update id="restore" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO">
+            UPDATE TB_CMMN_CODE
+               SET DELETE_YN = 'N'
+            WHERE CMMN_CODE= #{cmmnCode}
+    </update>
+
+   <select id="retrieve" resultType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO">
+            SELECT CC.CMMN_CODE_TY cmmnCodeTy
+                 , CT.CMMN_CODE_TY_NM cmmnCodeTyNm
+                 , CC.CMMN_CODE cmmnCode
+                 , CC.CMMN_CODE_NM cmmnCodeNm
+                 , CC.CMMN_CODE_DC cmmnCodeDc
+                 , CC.CMMN_CODE_SUB_NM1 cmmnCodeSubNm1
+                 , CC.SORT_NO sortNo
+                 , CC.CREAT_DT creatDt
+                 , CC.CREAT_ID creatId
+                 , LC.USER_NM creatUserNm
+                 , CC.UPDT_DT updtDt
+                 , CC.UPDT_ID updtId
+                 , LU.USER_NM updtUserNm
+                 , CC.DELETE_YN deleteYn
+              FROM TB_CMMN_CODE CC
+                   LEFT OUTER JOIN TB_CMMN_CODE_TY CT
+                      ON CC.CMMN_CODE_TY = CT.CMMN_CODE_TY
+                   LEFT OUTER JOIN tb_login_info LC ON CC.CREAT_ID = LC.USER_ID
+                   LEFT OUTER JOIN tb_login_info LU ON CC.UPDT_ID = LU.USER_ID
+            WHERE CC.CMMN_CODE= #{cmmnCode}
+    </select>
+
+   <select id="retrieveList" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO" resultType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO">
+
+            SELECT CC.CMMN_CODE_TY cmmnCodeTy
+                 , CT.CMMN_CODE_TY_NM cmmnCodeTyNm
+                 , CC.CMMN_CODE cmmnCode
+                 , CC.CMMN_CODE_SUB_NM1 cmmnCodeSubNm1
+                 , CC.CMMN_CODE_NM cmmnCodeNm
+                 , CC.CMMN_CODE_DC cmmnCodeDc
+                 , CC.SORT_NO sortNo
+                 , CC.CREAT_DT creatDt
+                 , CC.CREAT_ID creatId
+                 , LC.USER_NM creatUserNm
+                 , CC.UPDT_DT updtDt
+                 , CC.UPDT_ID updtId
+                 , LU.USER_NM updtUserNm
+                 , CC.DELETE_YN deleteYn
+              FROM TB_CMMN_CODE CC
+                   LEFT OUTER JOIN TB_CMMN_CODE_TY CT
+                      ON CC.CMMN_CODE_TY = CT.CMMN_CODE_TY
+                   LEFT OUTER JOIN tb_login_info LC ON CC.CREAT_ID = LC.USER_ID
+                   LEFT OUTER JOIN tb_login_info LU ON CC.UPDT_ID = LU.USER_ID
+             <include refid="retrievePagingListWhere" />
+            ORDER BY CC.CMMN_CODE_TY ASC, CC.CMMN_CODE ASC, CC.SORT_NO ASC
+    </select>
+
+   <select id="retrievePagingList" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO" resultType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO">
+
+            SELECT CC.CMMN_CODE_TY cmmnCodeTy
+                 , CT.CMMN_CODE_TY_NM cmmnCodeTyNm
+                 , CC.CMMN_CODE cmmnCode
+                 , CC.CMMN_CODE_SUB_NM1 cmmnCodeSubNm1
+                 , CC.CMMN_CODE_NM cmmnCodeNm
+                 , CC.CMMN_CODE_DC cmmnCodeDc
+                 , CC.SORT_NO sortNo
+                 , CC.CREAT_DT creatDt
+                 , CC.CREAT_ID creatId
+                 , LC.USER_NM creatUserNm
+                 , CC.UPDT_DT updtDt
+                 , CC.UPDT_ID updtId
+                 , LU.USER_NM updtUserNm
+                 , CC.DELETE_YN deleteYn
+              FROM TB_CMMN_CODE CC
+                   LEFT OUTER JOIN TB_CMMN_CODE_TY CT
+                      ON CC.CMMN_CODE_TY = CT.CMMN_CODE_TY
+                   LEFT OUTER JOIN tb_login_info LC ON CC.CREAT_ID = LC.USER_ID
+                   LEFT OUTER JOIN tb_login_info LU ON CC.UPDT_ID = LU.USER_ID
+             <include refid="retrievePagingListWhere" />
+            ORDER BY CC.CMMN_CODE_TY ASC, CC.CMMN_CODE ASC
+            limit #{firstIndex}, #{recordCountPerPage}
+    </select>
+
+   <select id="retrievePagingListCnt" parameterType="com.example.itsm_api.cmmncode.vo.CmmnCodeVO" resultType="int">
+
+            SELECT COUNT(*) totcnt
+            FROM TB_CMMN_CODE CC
+
+            <include refid="retrievePagingListWhere" />
+    </select>
+
+    <sql id="retrievePagingListWhere">
+         <if test="deleteYn != null and deleteYn != ''">
+            WHERE CC.DELETE_YN = #{deleteYn}
+         </if>
+         <if test="deleteYn == null or deleteYn == ''">
+            WHERE CC.DELETE_YN in ('Y','N')
+         </if>
+         <if test="cmmnCodeTy != null and cmmnCodeTy != ''">
+            AND CC.CMMN_CODE_TY = #{cmmnCodeTy}
+         </if>
+         <if test="cmmnCodeTyNm != null and cmmnCodeTyNm != ''">
+            AND CT.CMMN_CODE_TY_NM LIKE CONCAT('%', #{cmmnCodeTyNm},'%')
+         </if>
+         <if test="cmmnCode != null and cmmnCode != ''">
+            AND CC.CMMN_CODE = #{cmmnCode}
+         </if>
+         <if test="cmmnCodeNm != null and cmmnCodeNm != ''">
+            AND CC.CMMN_CODE_NM LIKE CONCAT('%', #{cmmnCodeNm} ,'%')
+         </if>
+         <if test="cmmnCodeSubNm1 != null and cmmnCodeSubNm1 != ''">
+            AND CC.CMMN_CODE_SUB_NM1 LIKE CONCAT('%', #{cmmnCodeSubNm1} ,'%')
+         </if>
+    </sql>
+</mapper>

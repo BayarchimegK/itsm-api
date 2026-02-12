@@ -28,7 +28,7 @@ public class MyBatisConfig {
         configuration.setMapUnderscoreToCamelCase(true);
         
         bean.setConfiguration(configuration);
-        bean.setTypeAliasesPackage("com.example.itsm_api.vo");
+        bean.setTypeAliasesPackage("com.example.itsm_api.vo,com.example.itsm_api.cmmncode.vo");
         
         return bean.getObject();
     }
